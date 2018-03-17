@@ -1,0 +1,42 @@
+Functions:
+
+initialize():
+	* Starts the O.S. thread, but makes it wait for sim to start
+	* O.S. creates bigmemory
+
+resource():
+	* starts the resource thread
+	* Will do nothing until O.S. starts
+
+activate():
+	* starts a process thread.
+	* Adds row to bigmemory
+	* immediately fills out times in it's row, then stops and waits for the O.S.
+
+simultate():
+	* The O.S. starts running.
+
+hold():
+	* 
+	
+request():
+
+release():
+
+
+
+passivate():
+
+reactivate():
+
+
+O.S. control loop:
+	Always the same:
+	
+	1: check bigmemory for minimum time (that isn't 0).
+	2. Advance sim_time (in header) to that time.
+	3. Change that min tim to 0, and set it's flag to 1, triggering the process thread.
+	
+	Do nothing if all times are 0.
+
+	Doesn't sleep, because it needs to keep polling for any changes.
