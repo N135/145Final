@@ -3,18 +3,22 @@ library(bigmemory)
 options(bigmemory.typecast.warning=FALSE)
 
 #process class. Has an integer id (should be strictly increasing by 1; can we enforce that?) and a name
-process <- function(id){
+process <- function(id,runFile,args = NULL){
 	attr(id,"class") <- "process"
+	attr(id,"run") <- runFile
+	attr(id,"args") <- args
 
 	id
 }
 
-run.process <- function(process){
-	print(process)	
-}
+activate <- function(process){	
+	val <- paste("Rscript",toString(process$run), sep = " ")
 
-activate <- function(process){
-	system()
+	for (i in process$args){
+		val <- paste(val,toString(i), sep = " ")
+	}
+
+	system(val,wait=FALSE)
 }
 
 #lock the process up for the duration
@@ -88,6 +92,7 @@ release <- function(process,resource){
 	}
 }
 
+
 #Starts the resource thread running
 #Passed number of resources as arguement
 resource <- function(resourceId, resourceNum){
@@ -117,3 +122,30 @@ simulate <- function(maxTime=10000){
 	system("rm ./event_list.*")
 }
 
+#returns current time
+now <- function(){
+	event_list[1,4]
+}
+
+#returns true if the sim is running, false otherwise
+isActive <- function(){
+	if(event_list[1,1] == 0){
+		TRUE
+	}
+	else{
+		FALSE
+	}
+}
+
+#loads the event_list for the user in the run function
+loadList <- function(){
+	#turn off annoying warning from bigmem package typcasting
+	options(bigmemory.typecast.warning=FALSE)
+	#load event_list
+	event_list <<- attach.big.matrix("event_list.desc")
+}
+
+#creates a process object that has the passed process id.
+loadSelf <- function(){
+	
+}

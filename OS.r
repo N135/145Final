@@ -35,4 +35,5 @@ while (simTime < maxTime){
 	}
 }
 
-#event_list[1,1] <- 1
+#
+event_list[1,1] <- 1

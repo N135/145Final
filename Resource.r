@@ -46,7 +46,6 @@ while(event_list[1,1] == 0){
 		}
 	}
 	else{
-		print(event_list[1,1])
 		Sys.sleep(0.1)
 	}
 }
