@@ -15,7 +15,7 @@ simTime <- 0
 while (simTime < maxTime){
 
 	#get list of times and filter out 0's
-	times <- event_list[-1,4]
+	times <- event_list[-1,5]
 	times <- times[times != 0]
 
 	#If any non-zero times exist, replace min with 0 and update sim time
@@ -24,16 +24,16 @@ while (simTime < maxTime){
 		minTime <- min(times)
 
 		#replace min in event_list with 0
-		index <- match(minTime,event_list[-1,4])
+		index <- match(minTime,event_list[-1,5])
 
 		index <- index + 1
 
-		event_list[index,4] <- 0
+		event_list[index,5] <- 0
 		event_list[index,1] <- 1
 
 		#update sim time
 		simTime <- minTime
-		event_list[1,4] <- simTime
+		event_list[1,5] <- simTime
 	}
 }
 

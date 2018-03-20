@@ -5,12 +5,18 @@ options(bigmemory.typecast.warning=FALSE)
 #load event_list
 event_list <- attach.big.matrix("event_list.desc")
 
+#load resource availibility
+resourceAvail <- attach.big.matrix("resAvail.desc")
+
 #get input from command line
 args <- commandArgs(trailingOnly = TRUE)
 id <- as.numeric(args[1])
 num <- as.numeric(args[2])
 
-queue = list()
+#show number of resources availible
+resourceAvail[1,id] <- num
+
+queue = c()
 
 while(event_list[1,1] == 0){
 	
@@ -28,33 +34,45 @@ while(event_list[1,1] == 0){
 				#if so, allocate a resource to the process
 				event_list[index,2] <- 0
 				event_list[index,3] <- id
+				event_list[index,4] <- 0
 
 				num <- num - 1
+
+				resourceAvail[1,id] <- num
 			}
 
 			#if not, add to queue
 			else{
-				queue.append(index)
+				queue <- c(index,queue)
+
+				event_list[index,2] <- 0
+				event_list[index,3] <- 0
+				event_list[index,4] <- id
 			}	
 		}
 
 		#It's a release
 		else{
-			event_list[index,2] <- 0
-			event_list[index,3] <- 0
-
 			num <- num + 1
-			
+
 			#If non-empty queue, pop element and run resource allocation
 			if (length(queue) != 0){
-				index <- queue[1]
+				Qindex <- queue[1]
 				queue <- queue[-1]
 
-				event_list[index,2] <- 0
-				event_list[index,3] <- id
+				event_list[Qindex,2] <- 0
+				event_list[Qindex,3] <- id
+				event_list[Qindex,4] <- 0
 
 				num <- num - 1
+
 			}
+
+			event_list[index,2] <- 0
+			event_list[index,3] <- 0
+			event_list[index,4] <- 0
+
+			resourceAvail[1,id] <- num
 		}
 	}
 	else{

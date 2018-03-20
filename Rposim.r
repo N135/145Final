@@ -34,7 +34,7 @@ hold <- function(process,duration){
 
 	#update event list, locking process thread (row 1) and setting the time to be awakened.
 	event_list[pIndex,1] <- 0.0
-        event_list[pIndex,4] <- duration + now()
+        event_list[pIndex,5] <- duration + now()
 
 	while (event_list[pIndex,1] == 0){
 		Sys.sleep(0.01)
@@ -48,7 +48,7 @@ passivate <- function(process){
 	event_list[pIndex,1] <- 0.0
 
 	#sets time to 0 to ensure that the O.S. doesn't do anything.
-        event_list[pIndex,4] <- 0.0
+        event_list[pIndex,5] <- 0.0
 
 	while (event_list[pIndex,1] == 0.0){
 		Sys.sleep(0.01)
@@ -65,33 +65,34 @@ reactivate <- function(process){
 #request use of a process
 request <- function(process,resourceId){
 	#get current sim time
-	now <- event_list[1,4]
+	now <- event_list[1,5]
 
 	pIndex <- process[1] + 1
 
 	event_list[pIndex,2] <- resourceId
+	event_list[pIndex,4] <- resourceId
 
 	#wait to return until the resource is free
-	while (event_list[pIndex,2] != 0.0){
+	while (event_list[pIndex,4] != 0.0){
 		Sys.sleep(0.1)
 	}
 
 }
 
 #release the resource from the process using it
-release <- function(process,resource){
+release <- function(process,resourceId){
 	pIndex <- process[1] + 1
 
 	#check if a resource has been used.
-	if (event_list[pIndex,3] != resource[1]){
+	if (event_list[pIndex,3] != resourceId){
 		stop("No resource of that type used by this process, or resource has already been released.")
 	}
 
 	#tell the resource it is allowed to return
-	event_list[pIndex,2] <- resource[1]
+	event_list[pIndex,2] <- resourceId
 
 	#wait to return until the resource has been released
-	while (event_list[pIndex,2] != 0.0){
+	while (event_list[pIndex,3] == resourceId){
 		Sys.sleep(0.1)
 	}
 }
@@ -110,9 +111,18 @@ resource <- function(resourceId, resourceNum){
 }
 
 #Sets up the big-memory array with number of processes + number of resource types + 1 as it's row number
-initialize <- function(processNum){
-	event_list <<- filebacked.big.matrix(1+processNum,4, type='float',init = 0, backingpath = "./", backingfile = "event_list.bin", 
+initialize <- function(processNum,resourceNum = 0){
+	event_list <<- filebacked.big.matrix(1+processNum,5, type='float',init = 0, backingpath = "./", backingfile = "event_list.bin", 
 					     descriptorfile = "event_list.desc", binarydescriptor = TRUE)
+
+	if (resourceNum != 0){
+		resFlag <<- TRUE
+		resAvail <<- filebacked.big.matrix(1,resourceNum, type='float',init = 0, backingpath = "./", backingfile = "resAvail.bin", 
+					     descriptorfile = "resAvail.desc", binarydescriptor = TRUE)
+	}
+	else{
+		resFlag <<- FALSE
+	}	
 }
 
 #Starts the O.S. thread, which begins the simulation. Doesn't return until the sim is done.
@@ -124,11 +134,15 @@ simulate <- function(maxTime=10000){
 	       #ignore.stdout = TRUE)
 
 	system("rm ./event_list.*")
+
+	if (resFlag == TRUE){
+		system("rm ./resAvail.*")
+	}
 }
 
 #returns current time
 now <- function(){
-	event_list[1,4]
+	event_list[1,5]
 }
 
 #returns true if the sim is running, false otherwise
@@ -141,6 +155,17 @@ isActive <- function(){
 	}
 
 	X
+}
+
+checkAvail <- function(resId){
+	if(resAvail[1,resId] == 0){
+		x <- FALSE
+	}
+	else{
+		x <- TRUE
+	}
+
+	x
 }
 
 #loads the event_list for the user in the run function
@@ -159,4 +184,12 @@ loadSelf <- function(){
 	script <- NULL
 
 	self <<- process(id, script)
+}
+
+#loads the resource_list for the user in the run function
+loadResources <- function(){
+	#turn off annoying warning from bigmem package typcasting
+	options(bigmemory.typecast.warning=FALSE)
+	#load event_list
+	resAvail <<- attach.big.matrix("resAvail.desc")
 }
