@@ -11,10 +11,16 @@ process <- function(id,runFile,args = NULL){
 	id
 }
 
-activate <- function(process){	
-	val <- paste("Rscript",toString(process$run), sep = " ")
+#begins running the thread for the object
+activate <- function(process){
 
-	for (i in process$args){
+	Pid <- process[1]
+	Pscript <- attr(process,"run")
+	Pargs <- attr(process,"args")
+
+	val <- paste("Rscript",toString(Pscript),toString(Pid), sep = " ")
+
+	for (i in Pargs){
 		val <- paste(val,toString(i), sep = " ")
 	}
 
@@ -26,14 +32,14 @@ hold <- function(process,duration){
 	#get current sim time
 	now <- event_list[1,4]
 
-	pIndex = process[1] + 1
+	pIndex <- process[1] + 1
 
 	#update event list, locking process thread (row 1) and setting the time to be awakened.
-	event_list[pIndex,1] <- 0
+	event_list[pIndex,1] <- 0.0
         event_list[pIndex,4] <- duration + now
 
 	while (event_list[pIndex,1] == 0){
-		Sys.sleep(0.1)
+		Sys.sleep(0.01)
 	}
 }
 
@@ -41,13 +47,13 @@ hold <- function(process,duration){
 passivate <- function(process){
 	pIndex <- process[1] + 1
 
-	event_list[pIndex,1] <- 0
+	event_list[pIndex,1] <- 0.0
 
 	#sets time to 0 to ensure that the O.S. doesn't do anything.
-        event_list[pIndex,4] <- 0
+        event_list[pIndex,4] <- 0.0
 
-	while (event_list[pIndex,1] == 0){
-		Sys.sleep(0.1)
+	while (event_list[pIndex,1] == 0.0){
+		Sys.sleep(0.01)
 	}	
 }
 
@@ -55,20 +61,20 @@ passivate <- function(process){
 reactivate <- function(process){
 	pIndex <- process[1] + 1
 
-	event_list[pIndex,1] <- 1
+	event_list[pIndex,1] <- 1.0
 }
 
 #request use of a process
-request <- function(process,resource){
+request <- function(process,resourceId){
 	#get current sim time
 	now <- event_list[1,4]
 
 	pIndex <- process[1] + 1
 
-	event_list[pIndex,2] <- resource[1]
+	event_list[pIndex,2] <- resourceId
 
 	#wait to return until the resource is free
-	while (event_list[pIndex,2] != 0){
+	while (event_list[pIndex,2] != 0.0){
 		Sys.sleep(0.1)
 	}
 
@@ -87,7 +93,7 @@ release <- function(process,resource){
 	event_list[pIndex,2] <- resource[1]
 
 	#wait to return until the resource has been released
-	while (event_list[pIndex,2] != 0){
+	while (event_list[pIndex,2] != 0.0){
 		Sys.sleep(0.1)
 	}
 }
@@ -107,7 +113,7 @@ resource <- function(resourceId, resourceNum){
 
 #Sets up the big-memory array with number of processes + number of resource types + 1 as it's row number
 initialize <- function(processNum){
-	event_list <<- filebacked.big.matrix(1+processNum,4, type='integer',init = 0, backingpath = "./", backingfile = "event_list.bin", 
+	event_list <<- filebacked.big.matrix(1+processNum,4, type='float',init = 0, backingpath = "./", backingfile = "event_list.bin", 
 					     descriptorfile = "event_list.desc", binarydescriptor = TRUE)
 }
 
@@ -130,11 +136,13 @@ now <- function(){
 #returns true if the sim is running, false otherwise
 isActive <- function(){
 	if(event_list[1,1] == 0){
-		TRUE
+		X <- TRUE
 	}
 	else{
-		FALSE
+		X <- FALSE
 	}
+
+	X
 }
 
 #loads the event_list for the user in the run function
@@ -147,5 +155,10 @@ loadList <- function(){
 
 #creates a process object that has the passed process id.
 loadSelf <- function(){
-	
+	#Take in and set up max time arg
+	args <- commandArgs(trailingOnly = TRUE)
+	id <- as.numeric(args[1])
+	script <- NULL
+
+	self <<- process(id, script)
 }

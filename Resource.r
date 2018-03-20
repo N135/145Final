@@ -10,6 +10,8 @@ args <- commandArgs(trailingOnly = TRUE)
 id <- as.numeric(args[1])
 num <- as.numeric(args[2])
 
+queue = list()
+
 while(event_list[1,1] == 0){
 	
 	index <- match(id, event_list[,2])
@@ -28,12 +30,11 @@ while(event_list[1,1] == 0){
 				event_list[index,3] <- id
 
 				num <- num - 1
-				print(num)
 			}
 
 			#if not, add to queue
 			else{
-				##add queue##
+				queue.append(index)
 			}	
 		}
 
@@ -43,6 +44,17 @@ while(event_list[1,1] == 0){
 			event_list[index,3] <- 0
 
 			num <- num + 1
+			
+			#If non-empty queue, pop element and run resource allocation
+			if (length(queue) != 0){
+				index <- queue[1]
+				queue <- queue[-1]
+
+				event_list[index,2] <- 0
+				event_list[index,3] <- id
+
+				num <- num - 1
+			}
 		}
 	}
 	else{
