@@ -12,25 +12,22 @@ maxTime <- as.numeric(args[1])
 #set sim time to 0, and run as long as time is not exceeded
 simTime <- 0
 
-n <- 0 
-
 while (simTime < maxTime){
 
 	#get list of times and filter out 0's
 	times <- event_list[-1,4]
 	times <- times[times != 0]
 
-	if(n %% 10000 == 0){
-		print(event_list[1,4])
-	}		
-
 	#If any non-zero times exist, replace min with 0 and update sim time
-	if (length(times) != 0.0){
+	if (length(times) != 0){
 		#get min
 		minTime <- min(times)
 
 		#replace min in event_list with 0
-		index <- match(minTime,event_list[,4])
+		index <- match(minTime,event_list[-1,4])
+
+		index <- index + 1
+
 		event_list[index,4] <- 0
 		event_list[index,1] <- 1
 
@@ -38,8 +35,6 @@ while (simTime < maxTime){
 		simTime <- minTime
 		event_list[1,4] <- simTime
 	}
-
-	n <- n + 1
 }
 
 #End the simulation, killing other threads

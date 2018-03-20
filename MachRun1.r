@@ -21,6 +21,4 @@ while(isActive()){
 	RepTime <- rexp(1, rate = RepRate)
 
 	hold(self, RepTime)
-
-	print(event_list[,])
 }

@@ -29,14 +29,12 @@ activate <- function(process){
 
 #lock the process up for the duration
 hold <- function(process,duration){
-	#get current sim time
-	now <- event_list[1,4]
 
 	pIndex <- process[1] + 1
 
 	#update event list, locking process thread (row 1) and setting the time to be awakened.
 	event_list[pIndex,1] <- 0.0
-        event_list[pIndex,4] <- duration + now
+        event_list[pIndex,4] <- duration + now()
 
 	while (event_list[pIndex,1] == 0){
 		Sys.sleep(0.01)
