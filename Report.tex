@@ -1,0 +1,112 @@
+\documentclass[a4paper]{article}
+%\setlength{\parindent}{5ex}
+
+%% Language and font encodings
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+
+%% Sets page size and margins
+\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+%% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{color}
+%\usepackage{minted}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+\usepackage{indentfirst}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{
+  language=R,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+
+\title{Discrete Event Simulation in R}
+\author{Daniel Andrade, Noah White, Gregory Dost, Ivan Timofeyev}
+
+\begin{document}
+\maketitle
+
+\newpage
+\tableofcontents
+
+\newpage
+
+\section{DES}
+
+
+
+
+\subsection{What is DES?}
+
+\par DES stands for discrete-event simulation. Discrete event simulation libraries provide a way of modeling a system that has its variables change in discrete rather than continuous increments. A good example of a discrete system is a hospital. The number of patients in the hospital increases or decreases by integer values rather than changing in a mathematically continuous manner. Half of a patient is not a useful measurement. At the same time, there are also always a discrete number of doctors, nurses, receptionists, and specialists available. A discrete event simulation may also be used to model other systems, such as vending machines, server-client interactions, warehouses and machine repairs. Since a discrete event simulation can model many industrial systems, their value is significant.
+	\\
+    \par D.E.S. applications usually all follow a similar control flow. The author of the application describes the number and types of resources (doctors, vending machines, and servers in the examples above) and then describes the order in which each incoming object will use each resource and for how long it will need to use the resource. Finally, the author of the application describes how frequently new objects will enter the system and specifies the number of time units the simulation will run for. They then begin the simulation. The simulation will generate objects according to the specified frequency and then pass them to the resources they need, where they will then use the resource for however long they need it. If all of a resource type is unavailable, the object is placed in a queue for the resource. Once the simulation reaches the specified time, it stops. If the author of the application chooses to do so, they can collect data on the time objects spent in queues or resources spent idle. This kind of data can be very important to the designers of such systems, as it allows them to check whether the number of resources they plan on using is optimal for such a system.
+
+
+
+
+\subsection{Event-Oriented DES}
+
+In computer programming Event-Oriented DES is programming model in which the flow of the program is determined from the events of a user. It is the simplest implementation. An implementation of an Event-Oriented DES can be seen in the DES.R file where each event happens in sequence. Event-Oriented DES is best used when there is an event list. The advantage of having an event list is that we always know what events will happen next in the sequence. One of the benefits of Event-Oriented DES is the ability to skip to new events that need to be tracked. In the queue there will always be at least one event pending. 
+    Let’s take a look at DES.R (place code)
+	\\
+    \par Inside the mainloop of the DES.R code we find that DES works on the next event in the queue and must handle that event before moving onto the next. In order for the system to keep track of which event will occur next it utilizes the evnttype variable. In the function schedevnt  it takes the evnttpye variable and the event then places it into the queue. The reactevent variable inside of the main loop is supplied by the user  for the specific event handler.
+Some positives for using Event-Oriented DES is you will not need to worry about threads, can expect a faster performans over Process-Oriented DES, and has the flexibility to write into application code. The way Event-Oriented DES works is while there is still an event on the queue that needs to be scheduled within the time limit then it skips calls the event handler and skips to the next event.
+
+
+
+\subsection{Process-Oriented DES}
+
+Process-Oriented DES uses a process like a thread to represents each individual object within the simulation. An additional thread is needed in order to handle the operating system. When looking at a single MM1 queue model we can break the model down to 4 different processes. 
+
+\begin{enumerate}
+	\item The first process would be used for inputting values into the queue.
+	\item The second process would process the items inside of the queue.
+	\item The third process would need to manage the simulation.
+	\item The fourth process would be a main thread to start all of the processes.
+\end{enumerate}
+
+	However if a user wanted to implement multiple servers than there will need to be a process to represent each server. 
+	\\
+    \par Simpy, a Python library, is an example of Process-Oriented DES. Simpy has a Simpy environment in order to bounce between both event and manager processes. Within the environment each event thread is set to a generator function. A generator function is utilized as an iterator that the Simpy program will use to active the event processes. In this process an event process runs and then activates Simpy. The benefits of using generators are their ability to yield. With the benefit of yielding, Simpy may yield a function for a given time or meanwhile another process is done. Another benefit of the yield is the ability to return values with it. These features make Simpy a process-oriented DES.
+
+
+\section{Rposim Package}
+
+
+\section{The simmer Package}
+
+
+\section{Who did what?}
+
+
+
+
+\section{Code Listings}
+
+
+
+
+\end{document}
