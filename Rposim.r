@@ -115,10 +115,11 @@ initialize <- function(processNum,resourceNum = 0){
 	event_list <<- filebacked.big.matrix(1+processNum,5, type='float',init = 0, backingpath = "./", backingfile = "event_list.bin", 
 					     descriptorfile = "event_list.desc", binarydescriptor = TRUE)
 
+	#if resources are being used, create their availibility array.
 	if (resourceNum != 0){
 		resFlag <<- TRUE
-		resAvail <<- filebacked.big.matrix(1,resourceNum, type='float',init = 0, backingpath = "./", backingfile = "resAvail.bin", 
-					     descriptorfile = "resAvail.desc", binarydescriptor = TRUE)
+		res_avail <<- filebacked.big.matrix(1,resourceNum, type='float',init = 0, backingpath = "./", backingfile = "res_avail.bin", 
+					     descriptorfile = "res_avail.desc", binarydescriptor = TRUE)
 	}
 	else{
 		resFlag <<- FALSE
@@ -136,7 +137,7 @@ simulate <- function(maxTime=10000){
 	system("rm ./event_list.*")
 
 	if (resFlag == TRUE){
-		system("rm ./resAvail.*")
+		system("rm ./res_avail.*")
 	}
 }
 
@@ -157,8 +158,9 @@ isActive <- function(){
 	X
 }
 
+#check if a resource is availible
 checkAvail <- function(resId){
-	if(resAvail[1,resId] == 0){
+	if(res_avail[1,resId] == 0){
 		x <- FALSE
 	}
 	else{
@@ -191,5 +193,5 @@ loadResources <- function(){
 	#turn off annoying warning from bigmem package typcasting
 	options(bigmemory.typecast.warning=FALSE)
 	#load event_list
-	resAvail <<- attach.big.matrix("resAvail.desc")
+	res_avail <<- attach.big.matrix("res_avail.desc")
 }

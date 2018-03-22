@@ -12,6 +12,8 @@ maxTime <- as.numeric(args[1])
 #set sim time to 0, and run as long as time is not exceeded
 simTime <- 0
 
+n <- 0
+
 while (simTime < maxTime){
 
 	#get list of times and filter out 0's
@@ -36,6 +38,8 @@ while (simTime < maxTime){
 		event_list[1,5] <- simTime
 	}
 }
+
+#Written by Noah White
 
 #End the simulation, killing other threads
 event_list[1,1] <- 1

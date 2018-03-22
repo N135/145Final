@@ -6,7 +6,7 @@ options(bigmemory.typecast.warning=FALSE)
 event_list <- attach.big.matrix("event_list.desc")
 
 #load resource availibility
-resourceAvail <- attach.big.matrix("resAvail.desc")
+resourceAvail <- attach.big.matrix("res_avail.desc")
 
 #get input from command line
 args <- commandArgs(trailingOnly = TRUE)
@@ -68,6 +68,7 @@ while(event_list[1,1] == 0){
 
 			}
 
+			#End resource occupation of element with resource
 			event_list[index,2] <- 0
 			event_list[index,3] <- 0
 			event_list[index,4] <- 0
@@ -76,6 +77,7 @@ while(event_list[1,1] == 0){
 		}
 	}
 	else{
+		#Nothing to do, wait.
 		Sys.sleep(0.1)
 	}
 }
